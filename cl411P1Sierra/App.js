@@ -59,7 +59,6 @@ class FollowRadiusGame extends Component {
       sound.stop(() => {});
 
       // User is within the radius, update the radius position
-      // You can add logic for moving the radius to a new random position here
       this.setState({
         radiusX: radiusX, // new X position,
         radiusY: radiusY, // new Y position,
@@ -117,7 +116,7 @@ const TitleScreen = () => {
     <View>
       <TouchableOpacity
         onPress={() => {
-          navigation.navigate('GamePage');
+          navigation.navigate('GameScreen');
         }}>
         <Text>Play</Text>
       </TouchableOpacity>
@@ -126,6 +125,29 @@ const TitleScreen = () => {
           navigation.navigate('SettingsPage');
         }}>
         <Text>Settings</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => {
+          navigation.navigate('AboutScreen');
+        }}>
+        <Text>About</Text>
+      </TouchableOpacity>
+    </View>
+  );
+};
+
+const AboutPage = () => {
+  const navigation = useNavigation();
+  return (
+    <View>
+      <TouchableOpacity
+        onPress={() => {
+          navigation.navigate('TitleScreen');
+        }}>
+        <Text>Juan Sierra</Text>
+        <Text>
+          https://docs.google.com/spreadsheets/d/124H73mvv7G6EfrJwA-zIdJReDiOmnpNedTeeuUa_l4A/edit
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -136,7 +158,8 @@ const App = () => {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen name="TitleScreen" component={TitleScreen}></Stack.Screen>
-        <Stack.Screen name="GamePage" component={FollowRadiusGame} />
+        <Stack.Screen name="GameScreen" component={FollowRadiusGame} />
+        <Stack.Screen name="AboutScreen" component={AboutPage} />
         <Stack.Screen
           name="SettingsPage"
           component={SettingsPage}></Stack.Screen>
