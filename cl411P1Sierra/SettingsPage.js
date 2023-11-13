@@ -23,6 +23,20 @@ const SettingsPage = () => {
         }}>
         <Text>Wet Fart</Text>
       </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => {
+          context.changeSound('baby_cry.mp3');
+          console.log('Sound changed');
+        }}>
+        <Text>Baby</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => {
+          context.changeSound('snore.mp3');
+          console.log('Sound changed');
+        }}>
+        <Text>snore</Text>
+      </TouchableOpacity>
     </View>
   );
 };
