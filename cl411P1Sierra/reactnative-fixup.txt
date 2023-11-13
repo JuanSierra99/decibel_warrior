@@ -1,0 +1,103 @@
+INFO: 
+*******
+This script MAY help you. You *should* have run "npx react-native doctor"
+and fixed the issues first. This may help you with issues there if you can't figure out why doctor is failing.
+      
+BUT DO NOT try to run-android without BOTH "doctor" and this script reporting success.
+      
+Note that "WARN:" does not mean "Error", it means "be sure this is correct."
+
+All output from this script will be logged to reactnative-fixup.txt
+*********** 
+      
+
+INFO: Found npm. [386]
+INFO: JAVA_HOME is set to /Library/Java/JavaVirtualMachines/jdk-20.jdk/Contents/Home [590]
+INFO: JAVA_HOME points to an existing directory. [594]
+INFO: java is in your path. [570]
+INFO: Detected version "20.0.2" of Java. [661]
+INFO: Java version is correct. [665]
+INFO: java executable location matches up with JAVA_HOME. [606]
+INFO: SDK and JDK paths appear to be good. [644]
+INFO: Environment var(s) point to an Android SDK location /Users/juansierra/Library/Android/sdk. [730]
+INFO: Android SDK appears to exist. [734]
+INFO: brew exists. [437]
+WARN: This project is NOT under git management [399]
+INFO: do "git init", "git add ." and "git commit -m'Initial commit'" [400]
+INFO: We are in an NPM project. [407]
+INFO: We are really in a React-native project. [415]
+INFO: Confirmed: this is a CLI project. [426]
+INFO: Confirmed: this is not an expo rebuild/exported project. [449]
+INFO: Found adb. [517]
+INFO: Found watchman. [492]
+INFO: Found ios-deploy. [506]
+INFO: Found cocoapods. [461]
+INFO: Xcode has been selected. [478]
+INFO: keytool is in path. [527]
+INFO: Found emulator. [542]
+INFO: Correct NDK is installed. [751]
+INFO: Command-line tools are in path. [743]
+INFO: Android SDK build-tools version 30.0.3 exists. [763]
+INFO: Android SDK build-tools version 33.0.0 exists. [763]
+INFO: Android SDK build-tools version 34.0.0 exists. [763]
+INFO: (All build-tools versions exist) [771]
+INFO: Checking [newest published] npm package versions... [681]
+WARN: Expecting version ^6.6.4 of @react-navigation/drawer but found ^6.6.6 [689]
+WARN: Expecting version ^6.1.8 of @react-navigation/native but found ^6.1.9 [689]
+WARN: Expecting version ^6.9.14 of @react-navigation/native-stack but found ^6.9.17 [689]
+WARN: Expecting version ^6.3.18 of @react-navigation/stack but found ^6.3.20 [689]
+WARN: Expecting version ^2.13.2 of react-native-gesture-handler but found ^2.13.4 [689]
+WARN: Expecting version ^4.7.2 of react-native-safe-area-context but found ^4.7.4 [689]
+WARN: Expecting version ^3.25.0 of react-native-screens but found ^3.27.0 [689]
+INFO: (Tell BJM or write an issue against this script on GitHub) [698]
+INFO: ...Done checking npm package versions. [700]
+INFO: Adding @react-native-masked-view/masked-view ^0.3.0 [942]
+INFO: Adding @react-navigation/drawer ^6.6.4 [942]
+INFO: Adding @react-navigation/native ^6.1.8 [942]
+INFO: Adding @react-navigation/native-stack ^6.9.14 [942]
+INFO: Adding @react-navigation/stack ^6.3.18 [942]
+INFO: react (18.2.0) is present and up to date [954]
+INFO: react-native (0.72.6) is present and up to date [954]
+INFO: Adding react-native-gesture-handler ^2.13.2 [942]
+INFO: Adding react-native-reanimated ^3.5.4 [942]
+INFO: Adding react-native-safe-area-context ^4.7.2 [942]
+INFO: Adding react-native-screens ^3.25.0 [942]
+INFO: Backing up package.json to package.json.bak [965]
+INFO: package.json file adjusted successfully. [980]
+INFO: App.tsx removed (it was the default version). [915]
+INFO: App.js created. [926]
+INFO: .prettierrc file created. [1006]
+INFO: org.gradle.java.home added or updated in gradle.properties. [885]
+INFO: gradle.properties file updated successfully. [820]
+INFO: android/universal.json file created with contents. [900]
+INFO: Gradle wrapper distributionUrl updated successfully. [860]
+INFO: Build.gradle file updated successfully. [801]
+INFO: gradle.properties file updated successfully. [842]
+INFO: Keystore generated successfully. [993]
+INFO: Be sure to:
+
+$ npm install
+
+Once this is done, you can either/both:
+
+[to run on simulator or connected device]
+
+$ npx react-native run-android
+
+[to build an APK]
+
+$ cd android && ./gradlew build && ./gradlew bundleRelease
+$ java -jar "/Users/juansierra/Library/bundletool-all-1.15.5.jar" build-apks --bundle=app/build/outputs/bundle/release/app-release.aab --output=app/build/outputs/apk/release/app-release.apks --mode=universal --ks=../android/app/my-release-key.jks --ks-pass=pass:12345678 --ks-key-alias=my-key-alias --key-pass=pass:12345678
+
+$ java -jar "/Users/juansierra/Library/bundletool-all-1.15.5.jar" extract-apks --apks=app/build/outputs/apk/release/app-release.apks --output-dir=app/build/outputs/apk/release/ --device-spec=../android/universal.json
+
+[to build on Mac for IOS]
+
+*Before* your first build (or after you install a new NPM package) you must:
+
+$ sudo gem update cocoapods --pre
+$ cd ios && pod update && cd ..
+
+
+
+*** Message type counts: 0 fatal, 8 warn, 0 error, 57 info
