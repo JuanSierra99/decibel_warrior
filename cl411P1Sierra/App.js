@@ -1,16 +1,15 @@
-import React, {Component} from 'react';
+import React, {Component, useContext, useState} from 'react';
 import {Text, View, PanResponder, TouchableOpacity} from 'react-native';
 import {NavigationContainer, useNavigation} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import SettingsPage from './SettingsPage';
 import Svg, {Circle} from 'react-native-svg';
 import Sound from 'react-native-sound';
+import AppContext from './AppContext';
 
 const Stack = createNativeStackNavigator();
-
-//configure sound for playback
 Sound.setCategory('Playback');
-const sound = new Sound('scream_sound_effect.mp3', Sound.MAIN_BUNDLE, error => {
+const sound = new Sound('baby_cry.mp3', Sound.MAIN_BUNDLE, error => {
   if (error) {
     console.error('failed to load the sound', error);
   }
@@ -27,6 +26,7 @@ class FollowRadiusGame extends Component {
       fingerX: 0, // Initial finger X position
       fingerY: 0, // Initial finger Y position
       inRadius: false,
+      sound: props.soundEffect,
     };
   }
 
@@ -47,7 +47,7 @@ class FollowRadiusGame extends Component {
   });
 
   checkIfWithinRadius() {
-    const {radiusX, radiusY, fingerX, fingerY} = this.state;
+    const {radiusX, radiusY, fingerX, fingerY, sound} = this.state;
     const distance = Math.sqrt(
       Math.pow(fingerX - radiusX, 2) + Math.pow(fingerY - radiusY, 2),
     );
@@ -110,6 +110,15 @@ class FollowRadiusGame extends Component {
   }
 }
 
+const Game = () => {
+  const context = useContext(AppContext);
+  return (
+    <View>
+      <FollowRadiusGame soundEffect={context.soundEffect}></FollowRadiusGame>
+    </View>
+  );
+};
+
 const TitleScreen = () => {
   const navigation = useNavigation();
   return (
@@ -154,17 +163,35 @@ const AboutPage = () => {
 };
 
 const App = () => {
+  const [soundEffect, setSoundEffect] = useState(sound);
+
+  const changeSound = file_name => {
+    sound.release;
+    setSoundEffect(
+      new Sound(file_name, Sound.MAIN_BUNDLE, error => {
+        if (error) {
+          console.error('failed to load the sound', error);
+        }
+      }),
+    );
+  };
+  // // Context shared between all pages
+  const context = {soundEffect, changeSound};
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="TitleScreen" component={TitleScreen}></Stack.Screen>
-        <Stack.Screen name="GameScreen" component={FollowRadiusGame} />
-        <Stack.Screen name="AboutScreen" component={AboutPage} />
-        <Stack.Screen
-          name="SettingsPage"
-          component={SettingsPage}></Stack.Screen>
-      </Stack.Navigator>
-    </NavigationContainer>
+    <AppContext.Provider value={context}>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="TitleScreen"
+            component={TitleScreen}></Stack.Screen>
+          <Stack.Screen name="GameScreen" component={Game} />
+          <Stack.Screen name="AboutScreen" component={AboutPage} />
+          <Stack.Screen
+            name="SettingsPage"
+            component={SettingsPage}></Stack.Screen>
+        </Stack.Navigator>
+      </NavigationContainer>
+    </AppContext.Provider>
   );
 };
 
