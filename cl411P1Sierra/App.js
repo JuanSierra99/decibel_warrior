@@ -1,11 +1,18 @@
-import React, {Component, useContext, useState} from 'react';
-import {Text, View, PanResponder, TouchableOpacity} from 'react-native';
+import React, {Component, useContext, useState, useEffect} from 'react';
+import {
+  Text,
+  View,
+  PanResponder,
+  TouchableOpacity,
+  Dimensions,
+} from 'react-native';
 import {NavigationContainer, useNavigation} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import SettingsPage from './SettingsPage';
 import Svg, {Circle} from 'react-native-svg';
 import Sound from 'react-native-sound';
 import AppContext from './AppContext';
+import AboutPage from './AboutPage';
 
 const Stack = createNativeStackNavigator();
 Sound.setCategory('Playback');
@@ -15,6 +22,9 @@ const sound = new Sound('baby_cry.mp3', Sound.MAIN_BUNDLE, error => {
   }
 });
 sound.setNumberOfLoops(-1);
+
+const windowWidth = Dimensions.get('window').width;
+const windowHeight = Dimensions.get('window').height;
 
 class FollowRadiusGame extends Component {
   constructor(props) {
@@ -55,10 +65,11 @@ class FollowRadiusGame extends Component {
     // Define a threshold for being within the radius
     const radiusThreshold = 30;
 
+    // User is within the radius
     if (distance < radiusThreshold) {
       sound.stop(() => {});
 
-      // User is within the radius, update the radius position
+      // Update the radius position
       this.setState({
         radiusX: radiusX, // new X position,
         radiusY: radiusY, // new Y position,
@@ -81,13 +92,13 @@ class FollowRadiusGame extends Component {
   }
 
   render() {
-    const {radiusX, radiusY, fingerX, fingerY} = this.state;
+    const {radiusX, radiusY, fingerX, fingerY, inRadius} = this.state;
 
     return (
       <View
         style={{
           flex: 1,
-          backgroundColor: this.state.inRadius ? 'blue' : 'red',
+          backgroundColor: 'red',
         }}
         {...this.panResponder.panHandlers}>
         <Svg height="300" width="300">
@@ -140,23 +151,6 @@ const TitleScreen = () => {
           navigation.navigate('AboutScreen');
         }}>
         <Text>About</Text>
-      </TouchableOpacity>
-    </View>
-  );
-};
-
-const AboutPage = () => {
-  const navigation = useNavigation();
-  return (
-    <View>
-      <TouchableOpacity
-        onPress={() => {
-          navigation.navigate('TitleScreen');
-        }}>
-        <Text>Juan Sierra</Text>
-        <Text>
-          https://docs.google.com/spreadsheets/d/124H73mvv7G6EfrJwA-zIdJReDiOmnpNedTeeuUa_l4A/edit
-        </Text>
       </TouchableOpacity>
     </View>
   );
