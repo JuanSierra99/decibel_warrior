@@ -2,9 +2,11 @@ import React, {useContext} from 'react';
 import {View, Text, Switch, TouchableOpacity, StyleSheet} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import AppContext from './AppContext';
+import App from './App';
 
 const SettingsPage = () => {
   const navigation = useNavigation();
+  const context = useContext(AppContext);
   // const context = useContext(AppContext);
   // const soundEnabled = context.soundEnabled;
 
@@ -13,6 +15,13 @@ const SettingsPage = () => {
       <Text style={styles.title}>Settings</Text>
       <TouchableOpacity onPress={() => navigation.navigate('TitleScreen')}>
         <Text>Return to Title Screen</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => {
+          context.changeSound('wet_fart.mp3');
+          console.log('Sound changed');
+        }}>
+        <Text>Wet Fart</Text>
       </TouchableOpacity>
     </View>
   );
