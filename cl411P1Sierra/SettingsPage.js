@@ -32,7 +32,7 @@ const SettingsPage = () => {
       </TouchableOpacity>
       <TouchableOpacity
         onPress={() => {
-          context.changeSound('snore.mp3');
+          context.changeSound('snore.mov');
           console.log('Sound changed');
         }}>
         <Text>snore</Text>
