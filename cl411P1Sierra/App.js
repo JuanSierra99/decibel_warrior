@@ -33,26 +33,36 @@ class FollowRadiusGame extends Component {
       fingerY: 0, // Initial finger Y position
       inRadius: false,
       sound: props.soundEffect,
+      gameOverMeter: 0,
+      velocityX: -4,
+      velocityY: -4,
     };
   }
 
-  // componentDidMount() {
-  //   this.interval = setInterval(() => {
-  //     {
-  //       /*It's recommended to use the functional form of setState
-  //       when the new state depends on the previous state. */
-  //     }
-  //     this.setState(prevState => ({radiusX: prevState.radiusX - 3}));
-  //     if (this.state.radiusX == 0) {
-  //       this.setState({radiusX: 300});
-  //     }
-  //   }, 10);
-  // }
+  componentDidMount() {
+    this.interval = setInterval(() => {
+      {
+        /*It's recommended to use the functional form of setState
+        when the new state depends on the previous state. */
+      }
+      if (this.state.radiusX >= windowWidth || this.state.radiusX <= 0) {
+        this.setState(prevState => ({velocityX: prevState.velocityX * -1}));
+      }
+      if (this.state.radiusY >= windowHeight || this.state.radiusY <= 0) {
+        this.setState(prevState => ({velocityY: prevState.velocityY * -1}));
+      }
+      this.setState(prevState => ({
+        radiusX: prevState.radiusX + this.state.velocityX,
+        radiusY: prevState.radiusY + this.state.velocityY,
+      }));
+      this.checkIfWithinRadius();
+    }, 30);
+  }
 
-  // componentWillUnmount() {
-  //   // Clear the interval when the component is unmounted
-  //   clearInterval(this.interval);
-  // }
+  componentWillUnmount() {
+    // Clear the interval when the component is unmounted
+    clearInterval(this.interval);
+  }
 
   // Initialize PanResponder for tracking finger movements
   panResponder = PanResponder.create({
@@ -64,9 +74,8 @@ class FollowRadiusGame extends Component {
         fingerX: gestureState.moveX,
         fingerY: gestureState.moveY,
       });
-
+      // this.checkIfWithinRadius();
       // Check if the finger is within the radius
-      this.checkIfWithinRadius();
     },
   });
 
@@ -77,7 +86,7 @@ class FollowRadiusGame extends Component {
     );
 
     // Define a threshold for being within the radius
-    const radiusThreshold = 45;
+    const radiusThreshold = 100;
 
     // User is within the radius
     if (distance < radiusThreshold) {
@@ -90,9 +99,10 @@ class FollowRadiusGame extends Component {
         inRadius: true,
       });
     } else {
-      this.setState({
+      this.setState(prevState => ({
         inRadius: false,
-      });
+        gameOverMeter: prevState.gameOverMeter + 1,
+      }));
       if (!sound.isPlaying()) {
         sound.play(success => {
           if (success) {
@@ -106,7 +116,8 @@ class FollowRadiusGame extends Component {
   }
 
   render() {
-    const {radiusX, radiusY, fingerX, fingerY, inRadius} = this.state;
+    const {radiusX, radiusY, fingerX, fingerY, inRadius, gameOverMeter} =
+      this.state;
 
     return (
       <View
@@ -117,6 +128,10 @@ class FollowRadiusGame extends Component {
         {...this.panResponder.panHandlers}>
         <Svg height={windowHeight} width={windowWidth}>
           <Text>{String(this.state.inRadius)}</Text>
+          <Text>{String(this.state.gameOverMeter)}</Text>
+          <Text>{windowWidth}</Text>
+          <Text>{windowHeight}</Text>
+
           <Line
             x1="0"
             y1="10"
@@ -125,20 +140,21 @@ class FollowRadiusGame extends Component {
             stroke="blue"
             strokeWidth="20"
           />
-          <Circle cx={radiusX} cy={radiusY} r="30" fill="blue" />
-          <Circle cx={fingerX} cy={fingerY} r="15" fill="blue" />
+          {/* <Circle
+            cx={radiusX}
+            cy={radiusY}
+            r="30"
+            fill="blue"
+            name="Safe Zone"
+          />
+          <Circle
+            cx={fingerX}
+            cy={fingerY}
+            r="15"
+            fill="blue"
+            name="Finger Zone"
+          /> */}
         </Svg>
-        {/* <View // The styling is what creates our little green circle so we can see where our finger is at
-          style={{
-            position: 'absolute',
-            left: fingerX,
-            top: fingerY,
-            width: 20,
-            height: 20,
-            borderRadius: 10,
-            backgroundColor: 'blue',
-          }}
-        /> */}
       </View>
     );
   }
@@ -189,27 +205,18 @@ const App = () => {
       } else {
         sound.setNumberOfLoops(-1);
         setSoundEffect(sound);
-        // sound.play(success => {
-        //   if (success) {
-        //     console.log('Sound is playing');
-        //   } else {
-        //     console.log('Sound failed to play');
-        //   }
-        // });
       }
     });
-    return () => {
-      if (sound) {
-        sound.release();
-      }
-    };
   }, []);
 
+  // Function to change sound given the file name
   const changeSound = file_name => {
+    // If we have a sound then stop and release it.
     if (soundEffect) {
       soundEffect.stop(); // Stop the current sound
       soundEffect.release(); // Release resources
     }
+    // Create new Sound, then update soundEffect State
     const newSound = new Sound(file_name, Sound.MAIN_BUNDLE, error => {
       if (error) {
         console.error('failed to load the sound', error);
