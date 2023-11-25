@@ -1,4 +1,4 @@
-import React, {Component, useContext, useState, useEffect} from 'react';
+import React, {Component, useContext, useState, useEffect, useRef} from 'react';
 import {
   Text,
   View,
@@ -19,7 +19,7 @@ import AboutPage from './AboutPage';
 const Stack = createNativeStackNavigator();
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
-const percent = windowWidth * 0.005; //Get half of 1 percent of window width
+const percent = windowWidth * 0.0025; //Get half of 1 percent of window width
 
 // This is a class component. Serves similar purpose as functional component
 // Im writing this as a class component just to learn how to write them. All my
@@ -64,8 +64,14 @@ class FollowRadiusGame extends Component {
   }
 
   componentWillUnmount() {
-    // Clear the interval when the component is unmounted
+    console.log('FollowRadiusGame is unmounting');
+
+    // Remove the blur listener when the component is unmounted
+    this.blurListener && this.blurListener();
     clearInterval(this.interval);
+    this.state.sound.stop(() => {
+      console.log('Sound stopped successfully');
+    });
   }
 
   // Initialize PanResponder for tracking finger movements
@@ -120,15 +126,17 @@ class FollowRadiusGame extends Component {
         gameOverMeter: prevState.gameOverMeter + percent,
       }));
       if (this.state.gameOverMeter >= windowWidth) {
-        sound.stop(() => {});
+        sound.stop(() => {
+          console.log('Sound stopped successfully');
+        });
+        this.resetGame();
         this.props.onGameOver(this.state.score);
         // Reset the game after calling onGameOver
-        this.resetGame();
-      }
-      if (!sound.isPlaying()) {
+        return;
+      } else if (!sound.isPlaying()) {
         sound.play(success => {
           if (success) {
-            console.log('sound played succesfully');
+            console.log('sound play succesfully');
           } else {
             console.log('Sound failed to play');
           }
@@ -222,19 +230,16 @@ const TitleScreen = () => {
   );
 };
 
-const GameOverScreen = ({route}) => {
-  const {score} = route.params;
+const GameOverScreen = () => {
   const navigation = useNavigation();
   return (
     <View>
-      <Text>Game is over</Text>
-      <Pressable onPress={() => navigation.navigate('TitleScreen')}>
-        <Text>Home</Text>
-      </Pressable>
-      <Pressable onPress={() => navigation.navigate('GameScreen')}>
-        <Text>Retry</Text>
-      </Pressable>
-      <Text>{score}</Text>
+      <TouchableOpacity
+        onPress={() => {
+          navigation.navigate('TitleScreen');
+        }}>
+        <Text>Title</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -248,7 +253,7 @@ const App = () => {
       if (error) {
         console.error('failed to load the sound', error);
       } else {
-        sound.setNumberOfLoops(-1);
+        // sound.setNumberOfLoops(-1);
         setSoundEffect(sound);
       }
     });
@@ -266,7 +271,7 @@ const App = () => {
       if (error) {
         console.error('failed to load the sound', error);
       } else {
-        newSound.setNumberOfLoops(-1);
+        // newSound.setNumberOfLoops(-1);
         // newSound.play();
         setSoundEffect(newSound);
       }
@@ -282,6 +287,9 @@ const App = () => {
             name="TitleScreen"
             component={TitleScreen}></Stack.Screen>
           <Stack.Screen
+            name="GameOverScreen"
+            component={GameOverScreen}></Stack.Screen>
+          <Stack.Screen
             name="GameScreen"
             component={Game}
             options={{headerShown: false}}
@@ -290,10 +298,6 @@ const App = () => {
           <Stack.Screen
             name="SettingsPage"
             component={SettingsPage}></Stack.Screen>
-          <Stack.Screen
-            name="GameOverScreen"
-            options={{headerShown: false}}
-            component={GameOverScreen}></Stack.Screen>
         </Stack.Navigator>
       </NavigationContainer>
     </AppContext.Provider>
