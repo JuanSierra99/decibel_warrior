@@ -5,9 +5,11 @@ import {
   PanResponder,
   TouchableOpacity,
   Dimensions,
+  Pressable,
 } from 'react-native';
 import {NavigationContainer, useNavigation} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {withNavigation} from 'react-navigation';
 import SettingsPage from './SettingsPage';
 import Svg, {Circle, Line} from 'react-native-svg';
 import Sound from 'react-native-sound';
@@ -17,10 +19,11 @@ import AboutPage from './AboutPage';
 const Stack = createNativeStackNavigator();
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
+const percent = windowWidth * 0.005; //Get half of 1 percent of window width
 
 // This is a class component. Serves similar purpose as functional component
 // Im writing this as a class component just to learn how to write them. All my
-// Other components will be functional components.
+// Other components will be functional components. Functional components are the new way.
 class FollowRadiusGame extends Component {
   // constructor to set the values for class
   constructor(props) {
@@ -34,8 +37,9 @@ class FollowRadiusGame extends Component {
       inRadius: false,
       sound: props.soundEffect,
       gameOverMeter: 0,
-      velocityX: -4,
-      velocityY: -4,
+      score: 0,
+      velocityX: 2,
+      velocityY: 2,
     };
   }
 
@@ -79,6 +83,20 @@ class FollowRadiusGame extends Component {
     },
   });
 
+  resetGame = () => {
+    this.setState({
+      radiusX: 300,
+      radiusY: 300,
+      fingerX: 0,
+      fingerY: 0,
+      inRadius: false,
+      gameOverMeter: 0,
+      score: 0,
+      velocityX: 2,
+      velocityY: 2,
+    });
+  };
+
   checkIfWithinRadius() {
     const {radiusX, radiusY, fingerX, fingerY, sound} = this.state;
     const distance = Math.sqrt(
@@ -91,18 +109,22 @@ class FollowRadiusGame extends Component {
     // User is within the radius
     if (distance < radiusThreshold) {
       sound.stop(() => {});
-
       // Update the radius position
-      this.setState({
-        radiusX: radiusX, // new X position,
-        radiusY: radiusY, // new Y position,
+      this.setState(prevState => ({
         inRadius: true,
-      });
+        score: prevState.score + 5,
+      }));
     } else {
       this.setState(prevState => ({
         inRadius: false,
-        gameOverMeter: prevState.gameOverMeter + 1,
+        gameOverMeter: prevState.gameOverMeter + percent,
       }));
+      if (this.state.gameOverMeter >= windowWidth) {
+        sound.stop(() => {});
+        this.props.onGameOver(this.state.score);
+        // Reset the game after calling onGameOver
+        this.resetGame();
+      }
       if (!sound.isPlaying()) {
         sound.play(success => {
           if (success) {
@@ -131,11 +153,11 @@ class FollowRadiusGame extends Component {
           <Text>{String(this.state.gameOverMeter)}</Text>
           <Text>{windowWidth}</Text>
           <Text>{windowHeight}</Text>
-
+          <Text>Score: {this.state.score}</Text>
           <Line
             x1="0"
             y1="10"
-            x2={windowWidth}
+            x2={this.state.gameOverMeter}
             y2="10"
             stroke="blue"
             strokeWidth="20"
@@ -146,25 +168,31 @@ class FollowRadiusGame extends Component {
             r="30"
             fill="blue"
             name="Safe Zone"
-          />
+          /> */}
           <Circle
             cx={fingerX}
             cy={fingerY}
             r="15"
             fill="blue"
             name="Finger Zone"
-          /> */}
+          />
         </Svg>
       </View>
     );
   }
 }
 
-const Game = () => {
+const Game = ({navigation}) => {
+  const handleGameOver = score => {
+    // Navigate to GameOverScreen and pass the score as a parameter
+    navigation.navigate('GameOverScreen', {score});
+  };
   const context = useContext(AppContext);
   return (
     // If i wrap in view i dont see background. WHYYYYY ?!??!?!?!?
-    <FollowRadiusGame soundEffect={context.soundEffect}></FollowRadiusGame>
+    <FollowRadiusGame
+      soundEffect={context.soundEffect}
+      onGameOver={handleGameOver}></FollowRadiusGame>
   );
 };
 
@@ -190,6 +218,23 @@ const TitleScreen = () => {
         }}>
         <Text>About</Text>
       </TouchableOpacity>
+    </View>
+  );
+};
+
+const GameOverScreen = ({route}) => {
+  const {score} = route.params;
+  const navigation = useNavigation();
+  return (
+    <View>
+      <Text>Game is over</Text>
+      <Pressable onPress={() => navigation.navigate('TitleScreen')}>
+        <Text>Home</Text>
+      </Pressable>
+      <Pressable onPress={() => navigation.navigate('GameScreen')}>
+        <Text>Retry</Text>
+      </Pressable>
+      <Text>{score}</Text>
     </View>
   );
 };
@@ -245,6 +290,10 @@ const App = () => {
           <Stack.Screen
             name="SettingsPage"
             component={SettingsPage}></Stack.Screen>
+          <Stack.Screen
+            name="GameOverScreen"
+            options={{headerShown: false}}
+            component={GameOverScreen}></Stack.Screen>
         </Stack.Navigator>
       </NavigationContainer>
     </AppContext.Provider>
