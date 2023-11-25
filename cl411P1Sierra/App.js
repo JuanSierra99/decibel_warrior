@@ -21,174 +21,185 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 const percent = windowWidth * 0.0025; //Get half of 1 percent of window width
 
-// This is a class component. Serves similar purpose as functional component
-// Im writing this as a class component just to learn how to write them. All my
-// Other components will be functional components. Functional components are the new way.
-class FollowRadiusGame extends Component {
-  // constructor to set the values for class
-  constructor(props) {
-    super(props);
+const FollowRadiusGame = props => {
+  const navigation = useNavigation();
+  const [fingerX, setFingerX] = useState(0);
+  const [fingerY, setFingerY] = useState(0);
+  const [state, setState] = useState({
+    radiusX: 300,
+    radiusY: 300,
+    inRadius: false,
+    sound: props.soundEffect,
+    gameOverMeter: 0,
+    score: 0,
+    velocityX: 4,
+    velocityY: 4,
+  });
 
-    this.state = {
-      radiusX: 300, // Initial radius X position
-      radiusY: 300, // Initial radius Y position
-      fingerX: 0, // Initial finger X position
-      fingerY: 0, // Initial finger Y position
-      inRadius: false,
-      sound: props.soundEffect,
-      gameOverMeter: 0,
-      score: 0,
-      velocityX: 2,
-      velocityY: 2,
+  const soundRef = useRef(null);
+
+  useEffect(() => {
+    soundRef.current = state.sound;
+  }, [state.sound]);
+
+  useEffect(() => {
+    checkIfWithinRadius();
+  }, [state.radiusX, state.radiusY]);
+
+  useEffect(() => {
+    let animationId = null;
+    const animate = () => {
+      setState(prevState => {
+        let {radiusX, radiusY, velocityX, velocityY, gameOverMeter, score} =
+          prevState;
+
+        if (radiusX >= windowWidth || radiusX <= 0) {
+          velocityX = -velocityX;
+        }
+        if (radiusY >= windowHeight || radiusY <= 0) {
+          velocityY = -velocityY;
+        }
+
+        radiusX += velocityX;
+        radiusY += velocityY;
+
+        return {
+          ...prevState,
+          radiusX,
+          radiusY,
+          velocityX,
+          velocityY,
+          gameOverMeter,
+          score,
+        };
+      });
+      animationID = requestAnimationFrame(animate);
     };
-  }
 
-  componentDidMount() {
-    this.interval = setInterval(() => {
-      {
-        /*It's recommended to use the functional form of setState
-        when the new state depends on the previous state. */
-      }
-      if (this.state.radiusX >= windowWidth || this.state.radiusX <= 0) {
-        this.setState(prevState => ({velocityX: prevState.velocityX * -1}));
-      }
-      if (this.state.radiusY >= windowHeight || this.state.radiusY <= 0) {
-        this.setState(prevState => ({velocityY: prevState.velocityY * -1}));
-      }
-      this.setState(prevState => ({
-        radiusX: prevState.radiusX + this.state.velocityX,
-        radiusY: prevState.radiusY + this.state.velocityY,
-      }));
-      this.checkIfWithinRadius();
-    }, 30);
-  }
+    animate();
 
-  componentWillUnmount() {
-    console.log('FollowRadiusGame is unmounting');
-
-    // Remove the blur listener when the component is unmounted
-    this.blurListener && this.blurListener();
-    clearInterval(this.interval);
-    this.state.sound.stop(() => {
-      console.log('Sound stopped successfully');
-    });
-  }
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    };
+  }, []);
 
   // Initialize PanResponder for tracking finger movements
-  panResponder = PanResponder.create({
+  const panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => true,
     onMoveShouldSetPanResponder: () => true,
     onPanResponderMove: (event, gestureState) => {
       // Update the finger position
-      this.setState({
-        fingerX: gestureState.moveX,
-        fingerY: gestureState.moveY,
-      });
-      // this.checkIfWithinRadius();
-      // Check if the finger is within the radius
+      console.log('Pans');
+      console.log(gestureState.moveX);
+      setFingerX(gestureState.moveX);
+      console.log('New X', fingerX);
+      setFingerY(gestureState.moveY);
     },
   });
 
-  resetGame = () => {
-    this.setState({
+  // ... (remaining code)
+
+  const resetGame = () => {
+    setState({
       radiusX: 300,
       radiusY: 300,
-      fingerX: 0,
-      fingerY: 0,
       inRadius: false,
       gameOverMeter: 0,
       score: 0,
-      velocityX: 2,
-      velocityY: 2,
+      velocityX: 4,
+      velocityY: 4,
     });
   };
 
-  checkIfWithinRadius() {
-    const {radiusX, radiusY, fingerX, fingerY, sound} = this.state;
+  const checkIfWithinRadius = () => {
+    const {radiusX, radiusY} = state;
+    console.log('X', fingerX);
+    console.log('y', fingerY);
     const distance = Math.sqrt(
       Math.pow(fingerX - radiusX, 2) + Math.pow(fingerY - radiusY, 2),
     );
-
-    // Define a threshold for being within the radius
     const radiusThreshold = 100;
-
-    // User is within the radius
+    // User finger is within radius
     if (distance < radiusThreshold) {
-      sound.stop(() => {});
-      // Update the radius position
-      this.setState(prevState => ({
+      const sound = soundRef.current;
+      if (sound.isPlaying()) {
+        sound.stop(() => {
+          console.log('Sound stopped successfully');
+        });
+      }
+      setState(prevState => ({
+        ...prevState,
         inRadius: true,
         score: prevState.score + 5,
       }));
     } else {
-      this.setState(prevState => ({
+      // user finger not within radius
+      setState(prevState => ({
+        ...prevState,
         inRadius: false,
         gameOverMeter: prevState.gameOverMeter + percent,
       }));
-      if (this.state.gameOverMeter >= windowWidth) {
-        sound.stop(() => {
-          console.log('Sound stopped successfully');
-        });
-        this.resetGame();
-        this.props.onGameOver(this.state.score);
-        // Reset the game after calling onGameOver
-        return;
-      } else if (!sound.isPlaying()) {
-        sound.play(success => {
-          if (success) {
-            console.log('sound play succesfully');
-          } else {
-            console.log('Sound failed to play');
-          }
-        });
+      if (state.gameOverMeter >= windowWidth) {
+        const sound = soundRef.current;
+        resetGame();
+        navigation.navigate('GameOverScreen');
+        props.onGameOver(state.score);
+      } else {
+        const sound = soundRef.current;
+        if (!sound || !sound.isPlaying()) {
+          sound.play(success => {
+            if (success) {
+              console.log('sound play successfully');
+            } else {
+              console.log('Sound failed to play');
+            }
+          });
+        }
       }
     }
-  }
+  };
 
-  render() {
-    const {radiusX, radiusY, fingerX, fingerY, inRadius, gameOverMeter} =
-      this.state;
-
-    return (
-      <View
-        style={{
-          flex: 1,
-          backgroundColor: inRadius ? 'green' : 'red',
-        }}
-        {...this.panResponder.panHandlers}>
-        <Svg height={windowHeight} width={windowWidth}>
-          <Text>{String(this.state.inRadius)}</Text>
-          <Text>{String(this.state.gameOverMeter)}</Text>
-          <Text>{windowWidth}</Text>
-          <Text>{windowHeight}</Text>
-          <Text>Score: {this.state.score}</Text>
-          <Line
-            x1="0"
-            y1="10"
-            x2={this.state.gameOverMeter}
-            y2="10"
-            stroke="blue"
-            strokeWidth="20"
-          />
-          {/* <Circle
-            cx={radiusX}
-            cy={radiusY}
-            r="30"
-            fill="blue"
-            name="Safe Zone"
-          /> */}
-          <Circle
-            cx={fingerX}
-            cy={fingerY}
-            r="15"
-            fill="blue"
-            name="Finger Zone"
-          />
-        </Svg>
-      </View>
-    );
-  }
-}
+  return (
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: state.inRadius ? 'green' : 'red',
+      }}
+      {...panResponder.panHandlers}>
+      <Svg height={windowHeight} width={windowWidth}>
+        <Text>{String(state.inRadius)}</Text>
+        <Text>{String(state.gameOverMeter)}</Text>
+        <Text>{windowWidth}</Text>
+        <Text>{windowHeight}</Text>
+        <Text>Score: {state.score}</Text>
+        <Line
+          x1="0"
+          y1="10"
+          x2={state.gameOverMeter}
+          y2="10"
+          stroke="blue"
+          strokeWidth="20"
+        />
+        <Circle
+          cx={state.radiusX}
+          cy={state.radiusY}
+          r="30"
+          fill="blue"
+          name="Safe Zone"
+        />
+        <Circle
+          cx={fingerX}
+          cy={fingerY}
+          r="15"
+          fill="white"
+          name="Finger Zone"
+        />
+      </Svg>
+    </View>
+  );
+};
 
 const Game = ({navigation}) => {
   const handleGameOver = score => {
