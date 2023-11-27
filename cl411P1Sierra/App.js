@@ -15,6 +15,7 @@ import Svg, {Circle, Line} from 'react-native-svg';
 import Sound from 'react-native-sound';
 import AppContext from './AppContext';
 import AboutPage from './AboutPage';
+import {saveScores, LeaderboardComponent} from './Leaderboard';
 
 const Stack = createNativeStackNavigator();
 const windowWidth = Dimensions.get('window').width;
@@ -42,8 +43,13 @@ const FollowRadiusGame = props => {
     soundRef.current = state.sound;
   }, [state.sound]);
 
+  // Giving me issues when i try to navigte to GameOverScreen
   useEffect(() => {
+    // console.log('here1');
     checkIfWithinRadius();
+    return () => {
+      // Cleanup code here
+    };
   }, [state.radiusX, state.radiusY]);
 
   useEffect(() => {
@@ -58,6 +64,12 @@ const FollowRadiusGame = props => {
         }
         if (radiusY >= windowHeight || radiusY <= 0) {
           velocityY = -velocityY;
+        }
+        if (Math.random() <= 0.01) {
+          velocityX *= -1; // Adjust the factor as needed
+        }
+        if (Math.random() <= 0.01) {
+          velocityY *= -1; // Adjust the factor as needed
         }
 
         radiusX += velocityX;
@@ -91,10 +103,7 @@ const FollowRadiusGame = props => {
     onMoveShouldSetPanResponder: () => true,
     onPanResponderMove: (event, gestureState) => {
       // Update the finger position
-      console.log('Pans');
-      console.log(gestureState.moveX);
       setFingerX(gestureState.moveX);
-      console.log('New X', fingerX);
       setFingerY(gestureState.moveY);
     },
   });
@@ -115,12 +124,12 @@ const FollowRadiusGame = props => {
 
   const checkIfWithinRadius = () => {
     const {radiusX, radiusY} = state;
-    console.log('X', fingerX);
-    console.log('y', fingerY);
+    // console.log('X', fingerX);
+    // console.log('y', fingerY);
     const distance = Math.sqrt(
       Math.pow(fingerX - radiusX, 2) + Math.pow(fingerY - radiusY, 2),
     );
-    const radiusThreshold = 100;
+    const radiusThreshold = 150;
     // User finger is within radius
     if (distance < radiusThreshold) {
       const sound = soundRef.current;
@@ -144,11 +153,12 @@ const FollowRadiusGame = props => {
       if (state.gameOverMeter >= windowWidth) {
         const sound = soundRef.current;
         resetGame();
-        navigation.navigate('GameOverScreen');
-        props.onGameOver(state.score);
+        // props.onGameOver(state.score);
+        saveScores(state.score);
+        return navigation.navigate('TitleScreen', state.score);
       } else {
         const sound = soundRef.current;
-        if (!sound || !sound.isPlaying()) {
+        if (sound && !sound.isPlaying()) {
           sound.play(success => {
             if (success) {
               console.log('sound play successfully');
@@ -171,8 +181,6 @@ const FollowRadiusGame = props => {
       <Svg height={windowHeight} width={windowWidth}>
         <Text>{String(state.inRadius)}</Text>
         <Text>{String(state.gameOverMeter)}</Text>
-        <Text>{windowWidth}</Text>
-        <Text>{windowHeight}</Text>
         <Text>Score: {state.score}</Text>
         <Line
           x1="0"
@@ -204,7 +212,7 @@ const FollowRadiusGame = props => {
 const Game = ({navigation}) => {
   const handleGameOver = score => {
     // Navigate to GameOverScreen and pass the score as a parameter
-    navigation.navigate('GameOverScreen', {score});
+    navigation.navigate('AboutScreen', {score});
   };
   const context = useContext(AppContext);
   return (
@@ -215,10 +223,12 @@ const Game = ({navigation}) => {
   );
 };
 
-const TitleScreen = () => {
+const TitleScreen = ({route}) => {
+  const score = route.params ? route.params : 0;
   const navigation = useNavigation();
   return (
     <View>
+      <Text>Last Score {score}</Text>
       <TouchableOpacity
         onPress={() => {
           navigation.navigate('GameScreen');
@@ -236,6 +246,12 @@ const TitleScreen = () => {
           navigation.navigate('AboutScreen');
         }}>
         <Text>About</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => {
+          navigation.navigate('Leaderboards');
+        }}>
+        <Text>Leaderboard</Text>
       </TouchableOpacity>
     </View>
   );
@@ -309,6 +325,9 @@ const App = () => {
           <Stack.Screen
             name="SettingsPage"
             component={SettingsPage}></Stack.Screen>
+          <Stack.Screen
+            name="Leaderboards"
+            component={LeaderboardComponent}></Stack.Screen>
         </Stack.Navigator>
       </NavigationContainer>
     </AppContext.Provider>
