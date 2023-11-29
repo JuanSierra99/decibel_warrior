@@ -1,21 +1,20 @@
-import React, {Component, useContext, useState, useEffect, useRef} from 'react';
+import React, {useContext, useState, useEffect, useRef} from 'react';
 import {
   Text,
   View,
   PanResponder,
   TouchableOpacity,
   Dimensions,
-  Pressable,
+  StyleSheet,
 } from 'react-native';
 import {NavigationContainer, useNavigation} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {withNavigation} from 'react-navigation';
 import SettingsPage from './SettingsPage';
 import Svg, {Circle, Line} from 'react-native-svg';
 import Sound from 'react-native-sound';
 import AppContext from './AppContext';
 import AboutPage from './AboutPage';
-import {saveScores, LeaderboardComponent} from './Leaderboard';
+import {saveScores, HighScores} from './HighScores';
 
 const Stack = createNativeStackNavigator();
 const windowWidth = Dimensions.get('window').width;
@@ -108,8 +107,6 @@ const FollowRadiusGame = props => {
     },
   });
 
-  // ... (remaining code)
-
   const resetGame = () => {
     setState({
       radiusX: 300,
@@ -179,9 +176,9 @@ const FollowRadiusGame = props => {
       }}
       {...panResponder.panHandlers}>
       <Svg height={windowHeight} width={windowWidth}>
-        <Text>{String(state.inRadius)}</Text>
-        <Text>{String(state.gameOverMeter)}</Text>
-        <Text>Score: {state.score}</Text>
+        {/* <Text>{String(state.inRadius)}</Text> */}
+        {/* <Text>{String(state.gameOverMeter)}</Text> */}
+        <Text style={style.TitleScreenButtons}>Score: {state.score}</Text>
         <Line
           x1="0"
           y1="10"
@@ -190,13 +187,13 @@ const FollowRadiusGame = props => {
           stroke="blue"
           strokeWidth="20"
         />
-        <Circle
+        {/* <Circle
           cx={state.radiusX}
           cy={state.radiusY}
           r="30"
           fill="blue"
           name="Safe Zone"
-        />
+        /> */}
         <Circle
           cx={fingerX}
           cy={fingerY}
@@ -228,45 +225,37 @@ const TitleScreen = ({route}) => {
   const navigation = useNavigation();
   return (
     <View>
-      <Text>Last Score {score}</Text>
-      <TouchableOpacity
-        onPress={() => {
-          navigation.navigate('GameScreen');
-        }}>
-        <Text>Play</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => {
-          navigation.navigate('SettingsPage');
-        }}>
-        <Text>Settings</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => {
-          navigation.navigate('AboutScreen');
-        }}>
-        <Text>About</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => {
-          navigation.navigate('Leaderboards');
-        }}>
-        <Text>Leaderboard</Text>
-      </TouchableOpacity>
-    </View>
-  );
-};
+      <Text style={style.decibelWarrior}>Decible Warrior</Text>
+      <View style={style.container}>
+        <Text style={style.TitleScreenButtons}>
+          {score > 0 && `Last Score ${score}`}
+        </Text>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('GameScreen');
+          }}>
+          <Text style={style.TitleScreenButtons}>Play</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('SettingsPage');
+          }}>
+          <Text style={style.TitleScreenButtons}>Settings</Text>
+        </TouchableOpacity>
 
-const GameOverScreen = () => {
-  const navigation = useNavigation();
-  return (
-    <View>
-      <TouchableOpacity
-        onPress={() => {
-          navigation.navigate('TitleScreen');
-        }}>
-        <Text>Title</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('HighScores');
+          }}>
+          <Text style={style.TitleScreenButtons}>High Scores</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('AboutScreen');
+          }}>
+          <Text style={style.TitleScreenButtons}>About</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -298,8 +287,6 @@ const App = () => {
       if (error) {
         console.error('failed to load the sound', error);
       } else {
-        // newSound.setNumberOfLoops(-1);
-        // newSound.play();
         setSoundEffect(newSound);
       }
     });
@@ -312,10 +299,8 @@ const App = () => {
         <Stack.Navigator>
           <Stack.Screen
             name="TitleScreen"
-            component={TitleScreen}></Stack.Screen>
-          <Stack.Screen
-            name="GameOverScreen"
-            component={GameOverScreen}></Stack.Screen>
+            component={TitleScreen}
+            options={{headerShown: false}}></Stack.Screen>
           <Stack.Screen
             name="GameScreen"
             component={Game}
@@ -325,13 +310,35 @@ const App = () => {
           <Stack.Screen
             name="SettingsPage"
             component={SettingsPage}></Stack.Screen>
-          <Stack.Screen
-            name="Leaderboards"
-            component={LeaderboardComponent}></Stack.Screen>
+          <Stack.Screen name="HighScores" component={HighScores}></Stack.Screen>
         </Stack.Navigator>
       </NavigationContainer>
     </AppContext.Provider>
   );
 };
+
+const style = StyleSheet.create({
+  container: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
+    height: windowHeight,
+    width: windowWidth,
+  },
+  decibelWarrior: {
+    backgroundColor: 'red',
+    fontFamily: 'Frijole-Regular',
+    textAlign: 'center',
+    color: 'lavender',
+    fontSize: 32,
+    paddingTop: 32,
+  },
+  TitleScreenButtons: {
+    fontFamily: 'arial',
+    color: 'red',
+    fontSize: 16,
+  },
+});
 
 export default App;
