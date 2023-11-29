@@ -17,10 +17,10 @@ const SettingsPage = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Settings</Text>
-      <TouchableOpacity onPress={() => navigation.navigate('TitleScreen')}>
+      <Text style={styles.title}>SELECT A SOUND</Text>
+      {/* <TouchableOpacity onPress={() => navigation.navigate('TitleScreen')}>
         <Text>Return to Title Screen</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <TouchableOpacity
         onPress={() => {
           context.changeSound('wet_fart.mp3');

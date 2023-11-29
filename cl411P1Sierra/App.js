@@ -178,7 +178,13 @@ const FollowRadiusGame = props => {
       <Svg height={windowHeight} width={windowWidth}>
         {/* <Text>{String(state.inRadius)}</Text> */}
         {/* <Text>{String(state.gameOverMeter)}</Text> */}
-        <Text style={style.TitleScreenButtons}>Score: {state.score}</Text>
+        <Text
+          style={[
+            style.TitleScreenButtons,
+            {color: 'white', textAlign: 'center'},
+          ]}>
+          Score: {state.score}
+        </Text>
         <Line
           x1="0"
           y1="10"
@@ -194,19 +200,19 @@ const FollowRadiusGame = props => {
           fill="blue"
           name="Safe Zone"
         /> */}
-        <Circle
+        {/* <Circle
           cx={fingerX}
           cy={fingerY}
           r="15"
           fill="white"
           name="Finger Zone"
-        />
+        /> */}
       </Svg>
     </View>
   );
 };
 
-const Game = ({navigation}) => {
+const Game = ({}) => {
   const context = useContext(AppContext);
   return (
     // If i wrap in view i dont see background. WHYYYYY ?!??!?!?!?
@@ -220,34 +226,43 @@ const TitleScreen = ({route}) => {
   return (
     <View>
       <Text style={style.decibelWarrior}>Decible Warrior</Text>
-      <View style={style.container}>
-        <Text style={style.TitleScreenButtons}>
+      <View style={style.buttonsContainer}>
+        <Text style={[style.TitleScreenButtons, {color: 'white'}]}>
+          {/*Show last score if there is one*/}
           {score > 0 && `Last Score ${score}`}
         </Text>
         <TouchableOpacity
           onPress={() => {
             navigation.navigate('GameScreen');
           }}>
-          <Text style={style.TitleScreenButtons}>Play</Text>
+          <Text style={[style.TitleScreenButtons, {color: '#3499E0'}]}>
+            Play
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
             navigation.navigate('SettingsPage');
           }}>
-          <Text style={style.TitleScreenButtons}>Settings</Text>
+          <Text style={[style.TitleScreenButtons, {color: '#A73ADF'}]}>
+            Settings
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={() => {
             navigation.navigate('HighScores');
           }}>
-          <Text style={style.TitleScreenButtons}>High Scores</Text>
+          <Text style={[style.TitleScreenButtons, {color: '#F57838'}]}>
+            High Scores
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
             navigation.navigate('AboutScreen');
           }}>
-          <Text style={style.TitleScreenButtons}>About</Text>
+          <Text style={[style.TitleScreenButtons, {color: '#27DF4E'}]}>
+            About
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -312,25 +327,24 @@ const App = () => {
 };
 
 const style = StyleSheet.create({
-  container: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    height: windowHeight,
-    width: windowWidth,
-  },
   decibelWarrior: {
-    backgroundColor: 'red',
+    backgroundColor: 'rgb(50, 50, 50)',
     fontFamily: 'Frijole-Regular',
     textAlign: 'center',
-    color: 'lavender',
+    color: 'red',
     fontSize: 32,
     paddingTop: 32,
   },
+  buttonsContainer: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgb(50, 50, 50)',
+    height: windowHeight,
+    width: windowWidth,
+  },
   TitleScreenButtons: {
-    fontFamily: 'arial',
-    color: 'red',
+    fontFamily: 'Frijole-Regular',
     fontSize: 16,
   },
 });
