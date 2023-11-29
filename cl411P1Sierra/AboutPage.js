@@ -1,18 +1,21 @@
 import {useNavigation} from '@react-navigation/native';
 import {Text, View, TouchableOpacity} from 'react-native';
+import style from './style';
 
 const AboutPage = () => {
   const navigation = useNavigation();
   return (
-    <View>
+    <View style={style.body}>
       <TouchableOpacity
         onPress={() => {
           navigation.navigate('TitleScreen');
         }}>
-        <Text>Title Page</Text>
+        <Text style={style.returnButton}>Back</Text>
       </TouchableOpacity>
-      <Text>Juan Sierra</Text>
-      <Text>
+      <Text style={{color: 'white', textAlign: 'center', fontWeight: 'bold'}}>
+        Juan Sierra
+      </Text>
+      <Text style={{color: 'white'}}>
         https://docs.google.com/spreadsheets/d/124H73mvv7G6EfrJwA-zIdJReDiOmnpNedTeeuUa_l4A/edit
       </Text>
     </View>
