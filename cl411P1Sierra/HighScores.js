@@ -1,6 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useState, useEffect} from 'react';
-import {Text, View, FlatList} from 'react-native';
+import {Text, View, FlatList, Pressable} from 'react-native';
+import style from './style';
+import {useNavigation} from '@react-navigation/native';
 const saveScores = async score => {
   try {
     const storedScoresString = await AsyncStorage.getItem('leaderboard');
@@ -18,8 +20,8 @@ const saveScores = async score => {
 };
 
 const HighScores = () => {
+  const navigation = useNavigation();
   const [leaderboard, setLeaderboard] = useState([]);
-
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
@@ -41,13 +43,19 @@ const HighScores = () => {
   }, []);
 
   return (
-    <View>
-      <Text>Leaderboard:</Text>
+    <View style={style.body}>
+      <Pressable
+        onPress={() => {
+          navigation.navigate('TitleScreen');
+        }}>
+        <Text style={style.returnButton}>Back</Text>
+      </Pressable>
+      <Text style={style.decibelWarriorText}>TOP 5 SCORES:</Text>
       <FlatList
         data={leaderboard}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({item, index}) => (
-          <Text>{`${index + 1}. Score: ${item}`}</Text>
+          <Text style={style.Buttons}>{`${index + 1}. Score: ${item}`}</Text>
         )}
       />
     </View>
