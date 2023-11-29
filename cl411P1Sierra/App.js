@@ -5,7 +5,6 @@ import {
   PanResponder,
   TouchableOpacity,
   Dimensions,
-  StyleSheet,
 } from 'react-native';
 import {NavigationContainer, useNavigation} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
@@ -15,6 +14,8 @@ import Sound from 'react-native-sound';
 import AppContext from './AppContext';
 import AboutPage from './AboutPage';
 import {saveScores, HighScores} from './HighScores';
+import HowToPlay from './HowToPlayPage';
+import style from './style';
 
 const Stack = createNativeStackNavigator();
 const windowWidth = Dimensions.get('window').width;
@@ -224,10 +225,10 @@ const TitleScreen = ({route}) => {
   const score = route.params ? route.params : 0;
   const navigation = useNavigation();
   return (
-    <View>
-      <Text style={style.decibelWarrior}>Decible Warrior</Text>
+    <View style={style.body}>
+      <Text style={style.decibelWarriorText}>Decible Warrior</Text>
       <View style={style.buttonsContainer}>
-        <Text style={[style.TitleScreenButtons, {color: 'white'}]}>
+        <Text style={[style.Buttons, {color: 'white'}]}>
           {/*Show last score if there is one*/}
           {score > 0 && `Last Score ${score}`}
         </Text>
@@ -235,34 +236,32 @@ const TitleScreen = ({route}) => {
           onPress={() => {
             navigation.navigate('GameScreen');
           }}>
-          <Text style={[style.TitleScreenButtons, {color: '#3499E0'}]}>
-            Play
-          </Text>
+          <Text style={[style.Buttons, {color: '#3499E0'}]}>Play</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
             navigation.navigate('SettingsPage');
           }}>
-          <Text style={[style.TitleScreenButtons, {color: '#A73ADF'}]}>
-            Settings
-          </Text>
+          <Text style={[style.Buttons, {color: '#A73ADF'}]}>Settings</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           onPress={() => {
             navigation.navigate('HighScores');
           }}>
-          <Text style={[style.TitleScreenButtons, {color: '#F57838'}]}>
-            High Scores
-          </Text>
+          <Text style={[style.Buttons, {color: '#F57838'}]}>High Scores</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate('HowToPlay');
+          }}>
+          <Text style={[style.Buttons, {color: 'lavender'}]}>HowToPlay</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
             navigation.navigate('AboutScreen');
           }}>
-          <Text style={[style.TitleScreenButtons, {color: '#27DF4E'}]}>
-            About
-          </Text>
+          <Text style={[style.Buttons, {color: '#27DF4E'}]}>About</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -283,6 +282,12 @@ const App = () => {
       }
     });
   }, []);
+
+  useEffect(() => {
+    if (soundEffect) {
+      soundEffect.play();
+    }
+  }, [soundEffect]);
 
   // Function to change sound given the file name
   const changeSound = file_name => {
@@ -315,38 +320,27 @@ const App = () => {
             component={Game}
             options={{headerShown: false}}
           />
-          <Stack.Screen name="AboutScreen" component={AboutPage} />
+          <Stack.Screen
+            name="AboutScreen"
+            component={AboutPage}
+            options={{headerShown: false}}
+          />
           <Stack.Screen
             name="SettingsPage"
+            options={{headerShown: false}}
             component={SettingsPage}></Stack.Screen>
-          <Stack.Screen name="HighScores" component={HighScores}></Stack.Screen>
+          <Stack.Screen
+            name="HighScores"
+            component={HighScores}
+            options={{headerShown: false}}></Stack.Screen>
+          <Stack.Screen
+            name="HowToPlay"
+            component={HowToPlay}
+            options={{headerShown: false}}></Stack.Screen>
         </Stack.Navigator>
       </NavigationContainer>
     </AppContext.Provider>
   );
 };
-
-const style = StyleSheet.create({
-  decibelWarrior: {
-    backgroundColor: 'rgb(50, 50, 50)',
-    fontFamily: 'Frijole-Regular',
-    textAlign: 'center',
-    color: 'red',
-    fontSize: 32,
-    paddingTop: 32,
-  },
-  buttonsContainer: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgb(50, 50, 50)',
-    height: windowHeight,
-    width: windowWidth,
-  },
-  TitleScreenButtons: {
-    fontFamily: 'Frijole-Regular',
-    fontSize: 16,
-  },
-});
 
 export default App;
