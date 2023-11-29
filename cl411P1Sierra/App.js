@@ -207,16 +207,10 @@ const FollowRadiusGame = props => {
 };
 
 const Game = ({navigation}) => {
-  const handleGameOver = score => {
-    // Navigate to GameOverScreen and pass the score as a parameter
-    navigation.navigate('AboutScreen', {score});
-  };
   const context = useContext(AppContext);
   return (
     // If i wrap in view i dont see background. WHYYYYY ?!??!?!?!?
-    <FollowRadiusGame
-      soundEffect={context.soundEffect}
-      onGameOver={handleGameOver}></FollowRadiusGame>
+    <FollowRadiusGame soundEffect={context.soundEffect}></FollowRadiusGame>
   );
 };
 
@@ -263,13 +257,13 @@ const TitleScreen = ({route}) => {
 const App = () => {
   // The sound that will play when user finger leaves safe zone radius
   const [soundEffect, setSoundEffect] = useState(null);
+  // set default sound. updates soundEffect state
   useEffect(() => {
     Sound.setCategory('Playback');
     const sound = new Sound('snore.mp3', Sound.MAIN_BUNDLE, error => {
       if (error) {
         console.error('failed to load the sound', error);
       } else {
-        // sound.setNumberOfLoops(-1);
         setSoundEffect(sound);
       }
     });
@@ -291,7 +285,7 @@ const App = () => {
       }
     });
   };
-  // // Context shared between all pages
+  // // Context to be shared between pages
   const context = {soundEffect, changeSound};
   return (
     <AppContext.Provider value={context}>
