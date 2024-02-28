@@ -194,13 +194,13 @@ const FollowRadiusGame = props => {
           stroke="blue"
           strokeWidth="20"
         />
-        {/* <Circle
+        <Circle
           cx={state.radiusX}
           cy={state.radiusY}
           r="30"
           fill="blue"
           name="Safe Zone"
-        /> */}
+        />
         {/* <Circle
           cx={fingerX}
           cy={fingerY}
@@ -255,7 +255,7 @@ const TitleScreen = ({route}) => {
           onPress={() => {
             navigation.navigate('HowToPlay');
           }}>
-          <Text style={[style.Buttons, {color: 'lavender'}]}>HowToPlay</Text>
+          <Text style={[style.Buttons, {color: 'lavender'}]}>How To Play</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
